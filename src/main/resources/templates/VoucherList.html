@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Voucher List</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <title>Voucher List</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 </head>
 <body>
-
-<div class="container my-2">
-    <h2>Voucher' List</h2>
-    <a th:href="@{/voucher/create}" class="btn btn-primary btn-sm mb-3">Create Voucher</a>
-
-    <table border="1" class="table table-striped table-responsive-md">
-        <thead>
-        <tr>
-            <th scope="col">Voucher Name</th>
-            <th scope="col">Quantity</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="voucher: ${vouchers}">
-            <td th:text="${voucher.voucherName}"></td>
-            <td th:text="${voucher.voucherQuantity}"></td>
-        </tr>
-        </tbody>
-    </table>
+<div class="container">
+  <h3>Voucher List</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Stock</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="voucher : ${vouchers}">
+        <td th:text="${voucher.voucherName}"></td>
+        <td th:text="${voucher.voucherAmount}"></td>
+        <td th:text="${voucher.voucherStock}"></td>
+        <td>
+          <button class="btn btn-primary" th:attr="data-id=${voucher.voucherId}" onclick="useVoucher(this)">Use Voucher</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-
+<script>
+  function useVoucher(button) {
+    var voucherId = button.getAttribute('data-id');
+    fetch('/voucher/use/' + voucherId, {
+      method: 'POST'
+    })
+    .then(response => response.text())
+    .then(data => alert(data));
+  }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

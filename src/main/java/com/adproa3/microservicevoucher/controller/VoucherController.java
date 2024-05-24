@@ -1,6 +1,8 @@
 package com.adproa3.microservicevoucher.controller;
 
-import com.adproa3.microservicevoucher.model.Voucher;
+import org.springframework.http.ResponseEntity;
+import com.adproa3.microservicevoucher.model.*;
+import com.adproa3.microservicevoucher.model.DTO.*;
 import com.adproa3.microservicevoucher.service.VoucherService;
 import com.adproa3.microservicevoucher.service.VoucherServiceImpl;
 import org.springframework.boot.Banner;
@@ -10,30 +12,37 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
-@Controller
-@RequestMapping("/voucher")
+@RestController
+@RequestMapping("/api/vouchers")
 public class VoucherController {
     @Autowired
-    private VoucherService service;
+    private VoucherService voucherService;
 
-    @GetMapping("/create")
-    public String createVoucherPage(Model model){
-        Voucher voucher = new Voucher();
-        model.addAttribute("voucher",voucher);
-        return "createVoucher";
+    @PostMapping("/use")
+    public ResponseEntity<VoucherResponseDTO> useVoucher(@RequestBody VoucherUsageRequestDTO request) {
+        VoucherResponseDTO response = voucherService.useVoucher(request);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/create")
-    public String createVoucherPost(@ModelAttribute Voucher voucher, Model model){
-        service.create(voucher);
-        return "redirect:list";
+    @GetMapping
+    public List<VoucherDTO> getAllVouchers() {
+        return voucherService.getAllVouchers();
     }
 
-    @GetMapping("/list")
-    public String voucherListPage(Model model){
-        List<Voucher> allVoucher = service.findAll();
-        model.addAttribute("vouchers", allVoucher);
-        return "voucherList";
+    @PostMapping
+    public VoucherDTO createVoucher(@RequestBody VoucherDTO voucherDTO) {
+        return voucherService.createVoucher(voucherDTO);
+    }
+
+    @PutMapping("/{id}")
+    public VoucherDTO updateVoucher(@PathVariable UUID id, @RequestBody VoucherDTO voucherDTO) {
+        return voucherService.updateVoucher(id, voucherDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteVoucher(@PathVariable UUID id) {
+        voucherService.deleteVoucher(id);
     }
 }

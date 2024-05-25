@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 import java.util.UUID;
 import java.time.*;
 @Setter @Getter
@@ -23,4 +25,5 @@ public class VoucherDTO {
     private int used;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Set<UserVoucherDTO> userVouchers;
 }

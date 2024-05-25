@@ -12,4 +12,5 @@ import java.util.UUID;
 
 @Repository
 public interface UserVoucherRepository extends JpaRepository<UserVoucher, UUID> {
+    List<UserVoucher> findByUserId(String userId);
 }

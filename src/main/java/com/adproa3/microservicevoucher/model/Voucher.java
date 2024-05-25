@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 import java.util.UUID;
 import java.time.*;
 
@@ -37,6 +39,10 @@ public class Voucher {
     private LocalDate startDate;
     @NotNull(message = "End Date voucher tidak boleh bernilai null.")
     private LocalDate endDate;
+    @Version
+    private int version;
+    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserVoucher> userVouchers;
     public Voucher(String voucherName, int voucherAmount, int quota, String termsCondition,int requiredSpending, LocalDate startDate, LocalDate endDate){
         this.voucherName = voucherName;
         this.voucherAmount = voucherAmount;

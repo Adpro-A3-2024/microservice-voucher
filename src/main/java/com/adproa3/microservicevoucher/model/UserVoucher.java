@@ -15,6 +15,9 @@ import java.time.*;
 
 @Getter @Setter
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserVoucher {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)

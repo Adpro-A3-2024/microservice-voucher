@@ -1,27 +1,16 @@
 package com.adproa3.microservicevoucher.service;
 
+import com.adproa3.microservicevoucher.model.DTO.VoucherDTO;
 import com.adproa3.microservicevoucher.model.*;
 import com.adproa3.microservicevoucher.model.DTO.*;
-import com.adproa3.microservicevoucher.repository.VoucherRepository;
-import com.adproa3.microservicevoucher.repository.UserVoucherRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.BeanUtils;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.UUID;
-import java.time.*;
+import java.util.concurrent.CompletableFuture;
+
 public interface VoucherService {
-    public Voucher create(Voucher voucher);
-    public List<Voucher> findAll();
+    public CompletableFuture<VoucherResponseDTO> useVoucherAsync(VoucherUsageRequestDTO request);
+    public CompletableFuture<VoucherDTO> attachVoucherToUserAsync(UUID voucherId, String userId);
     public VoucherResponseDTO useVoucher(VoucherUsageRequestDTO request);
-    public List<VoucherDTO> getAllVouchers();
-    public VoucherDTO createVoucher(VoucherDTO voucherDTO);
-    public VoucherDTO updateVoucher(UUID id, VoucherDTO voucherDTO);
-    public void deleteVoucher(UUID id);
-
-
-
+    public VoucherDTO attachVoucherToUser(UUID voucherId, String userId);
 }

@@ -32,6 +32,7 @@ public class Voucher {
     @NotNull(message = "Jumlah diskon voucher tidak boleh bernilai null.")
     private int voucherAmount;
     private String termsCondition;
+    private String attachedUser;
     private int quota;
     private int used;
     private int requiredSpending;

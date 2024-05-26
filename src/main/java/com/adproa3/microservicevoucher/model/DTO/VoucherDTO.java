@@ -20,10 +20,10 @@ public class VoucherDTO {
     private String voucherName;
     private int voucherAmount;
     private String termsCondition;
-    private double requiredSpending;
+    private int requiredSpending;
     private int quota;
     private int used;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Set<UserVoucherDTO> userVouchers;
+    private String attachedUser;
 }

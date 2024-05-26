@@ -14,8 +14,6 @@ import java.util.UUID;
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, UUID> {
     List<Voucher> findByVoucherNameContainingIgnoreCase(String query);
-    @EntityGraph(attributePaths = "userVouchers")
-    @Query("SELECT v FROM Voucher v LEFT JOIN FETCH v.userVouchers")
-    List<Voucher> findAllWithUserVouchers();
+    List<Voucher> findByAttachedUser(String userId);
 }
 

@@ -3,6 +3,7 @@ package com.adproa3.microservicevoucher.service;
 import com.adproa3.microservicevoucher.model.*;
 import com.adproa3.microservicevoucher.model.DTO.*;
 import com.adproa3.microservicevoucher.repository.VoucherRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.beans.BeanUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.UUID;
 import jakarta.validation.Valid;
+import org.springframework.web.server.ResponseStatusException;
+
 @Service
 public class VoucherWriteServiceImpl implements VoucherWriteService{
 
@@ -40,32 +43,35 @@ public class VoucherWriteServiceImpl implements VoucherWriteService{
     public VoucherDTO createVoucher(@Valid VoucherDTO voucherDTO) {
         validateVoucher(voucherDTO);
         Voucher voucher = new Voucher();
-        BeanUtils.copyProperties(voucherDTO, voucher, "voucherId"); // Jangan menyalin ID
+        BeanUtils.copyProperties(voucherDTO, voucher, "voucherId");
         voucher = voucherRepository.save(voucher);
-        return convertToDto(voucher); // Salin ID yang dihasilkan dari entitas ke DTO
+        return convertToDto(voucher);
     }
 
     public VoucherDTO updateVoucher(UUID id, @Valid VoucherDTO voucherDTO) {
         validateVoucher(voucherDTO);
         Voucher voucher = voucherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
-        BeanUtils.copyProperties(voucherDTO, voucher, "voucherId"); // Jangan menyalin ID
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voucher not found"));
+        BeanUtils.copyProperties(voucherDTO, voucher, "voucherId");
         voucher = voucherRepository.save(voucher);
         return convertToDto(voucher); // Salin ID yang dihasilkan dari entitas ke DTO
     }
 
     public void deleteVoucher(UUID id) {
         Voucher voucher = voucherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voucher not found"));
         voucherRepository.delete(voucher);
     }
 
     private void validateVoucher(VoucherDTO voucherDTO) {
         if (voucherDTO.getVoucherName() == null || voucherDTO.getVoucherName().isEmpty()) {
-            throw new IllegalArgumentException("Voucher name is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voucher name is required");
         }
         if (voucherDTO.getVoucherAmount() <= 0) {
-            throw new IllegalArgumentException("Discount amount must be greater than zero");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voucher amount must be greater than zero");
+        }
+        if (voucherDTO.getRequiredSpending() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required spending must be greater than zero");
         }
     }
 

@@ -4,6 +4,7 @@ import com.adproa3.microservicevoucher.model.DTO.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -12,9 +13,11 @@ import java.util.stream.Collectors;
 import com.adproa3.microservicevoucher.repository.VoucherRepository;
 import com.adproa3.microservicevoucher.repository.UserVoucherRepository;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -40,15 +43,9 @@ public class VoucherServiceImpl implements VoucherService {
     }
     public VoucherDTO attachVoucherToUser(UUID voucherId, String userId) {
         Voucher voucher = voucherRepository.findById(voucherId)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voucher not found"));
 
-        UserVoucher userVoucher = new UserVoucher();
-        userVoucher.setUserId(userId);
-        userVoucher.setVoucher(voucher);
-        userVoucher.setUsedAt(LocalDateTime.now());
-        userVoucherRepository.save(userVoucher);
-
-        voucher.getUserVouchers().add(userVoucher);
+        voucher.setAttachedUser(userId);
         voucherRepository.save(voucher);
 
         return convertToDto(voucher);
@@ -57,11 +54,20 @@ public class VoucherServiceImpl implements VoucherService {
     public VoucherResponseDTO useVoucher(VoucherUsageRequestDTO request) {
 //        Mono<UserDTO> userMono = userService.getUserById(request.getUserId());
 //        UserDTO user = userMono.block();
-//        if (user == null) {
+//        if (request.getUserId() == null) {
 //            throw new RuntimeException("User not found");
 //        }
-        Voucher voucher = voucherRepository.findById(request.getVoucherId())
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        Optional<Voucher> optionalVoucher = voucherRepository.findById(request.getVoucherId());
+        if (optionalVoucher.isEmpty()) {
+            return new VoucherResponseDTO(false, "Voucher tidak ditemukan", request.getCartTotal(), null);
+        }
+        Voucher voucher = optionalVoucher.get();
+        if (voucher.getAttachedUser() == null){
+            return new VoucherResponseDTO(false, "Voucher belum Di attach ke user", request.getCartTotal(), null);
+        }
+        if (!voucher.getAttachedUser().equals(request.getUserId())) {
+            return new VoucherResponseDTO(false, "User tidak ditemukan", request.getCartTotal(), null);
+        }
 
         LocalDate today = LocalDate.now();
 
@@ -97,15 +103,6 @@ public class VoucherServiceImpl implements VoucherService {
     private VoucherDTO convertToDto(Voucher voucher) {
         VoucherDTO voucherDTO = new VoucherDTO();
         BeanUtils.copyProperties(voucher, voucherDTO);
-        Set<UserVoucherDTO> userVoucherDTOs = voucher.getUserVouchers().stream()
-                .map(userVoucher -> {
-                    UserVoucherDTO userVoucherDTO = new UserVoucherDTO();
-                    userVoucherDTO.setVoucherId(userVoucher.getUserVoucherId());
-                    userVoucherDTO.setUserId(userVoucher.getUserId());
-                    return userVoucherDTO;
-                })
-                .collect(Collectors.toSet());
-        voucherDTO.setUserVouchers(userVoucherDTOs);
         return voucherDTO;
     }
 

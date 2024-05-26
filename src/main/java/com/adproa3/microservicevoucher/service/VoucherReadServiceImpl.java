@@ -34,10 +34,9 @@ public class VoucherReadServiceImpl implements VoucherReadService {
                 .collect(Collectors.toList());
     }
     public List<VoucherDTO> getAllVouchersForUser(String userId) {
-        List<UserVoucher> userVouchers = userVoucherRepository.findByUserId(userId);
-        return userVouchers.stream()
-                .map(userVoucher -> convertToDto(userVoucher.getVoucher()))
-                .collect(Collectors.toList());
+        List<Voucher> vouchers = voucherRepository.findByAttachedUser(userId);
+        return vouchers.stream().map(this::convertToDto).collect(Collectors.toList());
+
     }
     private VoucherDTO convertToDto(Voucher voucher) {
         VoucherDTO voucherDTO = new VoucherDTO();

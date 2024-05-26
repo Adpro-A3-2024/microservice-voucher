@@ -62,8 +62,9 @@ public class VoucherController {
         return ResponseEntity.ok(vouchers);
     }
     @PostMapping("/{voucherId}/attach")
-    public ResponseEntity<VoucherDTO> attachVoucherToUser(@PathVariable UUID voucherId, @RequestBody AttachVoucherRequestDTO request) {
+    public ResponseEntity<AttachVoucherResponseDTO> attachVoucherToUser(@PathVariable UUID voucherId, @RequestBody AttachVoucherRequestDTO request) {
         VoucherDTO voucherDTO = voucherService.attachVoucherToUser(voucherId, request.getUserId());
-        return ResponseEntity.ok(voucherDTO);
+        AttachVoucherResponseDTO response = new AttachVoucherResponseDTO(request.getUserId(), voucherDTO.getVoucherId(), voucherDTO.getVoucherName());
+        return ResponseEntity.ok(response);
     }
 }

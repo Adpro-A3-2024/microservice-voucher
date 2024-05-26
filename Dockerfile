@@ -1,16 +1,13 @@
-FROM gradle:jdk21-alpine
-ARG PRODUCTION
-ARG JDBC_DATABASE_PASSWORD
-ARG JDBC_DATABASE_URL
-ARG JDBC_DATABASE_USERNAME
+# Use a multi-stage build to reduce the final image size
+# Stage 1: Build the application
+FROM gradle:8.0.2-jdk21 as builder
+COPY --chown=gradle:gradle . /home/gradle/project
+WORKDIR /home/gradle/project
+RUN gradle build -x test
 
-ENV PRODUCTION ${PRODUCTION}
-ENV JDBC_DATABASE_PASSWORD ${JDBC_DATABASE_PASSWORD}
-ENV JDBC_DATABASE_URL ${JDBC_DATABASE_URL}
-ENV JDBC_DATABASE_USERNAME ${JDBC_DATABASE_USERNAME}
+# Stage 2: Package the application
+FROM openjdk:21-jre-slim
+VOLUME /tmp
+COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
 
-WORKDIR /app
-RUN ls -al
-COPY ./microservice-voucher-0.0.1-SNAPSHOT.jar /app
-EXPOSE 8080
-CMD ["java","-jar","microservice-voucher-0.0.1-SNAPSHOT.jar"]

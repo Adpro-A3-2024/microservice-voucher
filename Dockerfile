@@ -6,7 +6,7 @@ WORKDIR /home/gradle/project
 RUN gradle build -x test
 
 # Stage 2: Package the application
-FROM openjdk:21-jre-slim
+FROM openjdk:21-jdk-slim
 VOLUME /tmp
 COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
